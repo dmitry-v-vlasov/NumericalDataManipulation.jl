@@ -1,5 +1,9 @@
 module NumericalDataManipulation
 
-include("io/filesystem/read.jl")
+include("assertion/assertion.jl")
+include("io/filesystem/filesystem.jl")
+
+export Assertion
+export FileSystem
 
 end # module

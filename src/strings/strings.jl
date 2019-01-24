@@ -1,0 +1,3 @@
+module Strings
+
+end # module
