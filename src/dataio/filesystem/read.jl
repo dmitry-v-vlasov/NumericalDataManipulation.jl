@@ -2,9 +2,9 @@ using FileIO
 using CSVFiles
 using DataFrames
 
-function load_table(file_path::AbstractString)
+function load_datatable(file_path::AbstractString; skip::Int = 0)
     return load_DataFrame(file_path;
-        skip_lines = 0, delimiter = space::Delimiter, header = true)
+        skip_lines = skip, delimiter = space::Delimiter, header = true)
 end
 
 function load_DataFrame(
@@ -36,4 +36,5 @@ function load_DataFrame(
         return nothing
     end
     @info "... Data loaded to a new DataFrame with size $(size(data, 1))×$(size(data, 2))."
+    return data
 end

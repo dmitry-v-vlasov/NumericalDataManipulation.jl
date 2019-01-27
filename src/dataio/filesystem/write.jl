@@ -2,7 +2,7 @@ using FileIO
 using CSVFiles
 using DataFrames
 
-function save_table(data::DataFrame, file_path::AbstractString)
+function save_datatable(data::DataFrame, file_path::AbstractString)
     return save_DataFrame(data, file_path;
         delimiter = space::Delimiter, header = true)
 end

@@ -1,9 +1,12 @@
 module NumericalDataManipulation
 
 include("assertion/assertion.jl")
-include("io/filesystem/filesystem.jl")
+include("types/types.jl")
+include("common/common.jl")
+include("interpolation/interpolation.jl")
+include("dataio/dataio.jl")
+include("data/data.jl")
 
-export Assertion
-export FileSystem
+export load_numerical_table
 
 end # module

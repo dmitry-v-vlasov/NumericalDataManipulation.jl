@@ -1,6 +1,8 @@
 import Dierckx
 import Calculus
 
+using Formatting
+
 struct SplineFunction <: Function
     spline::Dierckx.Spline1D
     function_object::Function
@@ -53,11 +55,12 @@ function Base.show(io::IO, sfunction::SplineFunction)
     order = spline.k
 
     if compact
-        print(io, "𝐒𝐩𝐥𝐢𝐧𝐞(𝐗 ∈ [$a, $b], 𝐘 ∈ [$y_min, $y_max]; 𝚶 = $order; Δxᵐⁱⁿ = $Δx_min, Δxᵐᵃˣ = $Δx_max)")
+        printfmt(io, "𝐒𝐩𝐥𝐢𝐧𝐞(𝐗 ∈ [{1:.6e}, {2:.6e}], 𝐘 ∈ [{3:.6e}, {4:.6e}]; 𝚶 = {5}; Δxᵐⁱⁿ = {6:.6e}, Δxᵐᵃˣ = {7:.6e})",
+            a, b, y_min, y_max, order, Δx_min, Δx_max)
     else
-        print(io, "𝐒𝐩𝐥𝐢𝐧𝐞(𝐗 ∈ [$a, $b], 𝐘 ∈ [$y_min, $y_max]; 𝚶 = $order; Δxᵐⁱⁿ = $Δx_min, Δxᵐᵃˣ = $Δx_max; |Δyᵐⁱⁿ| = $Δy_min, |Δyᵐᵃˣ| = $Δy_max)")
+        printfmt(io, "𝐒𝐩𝐥𝐢𝐧𝐞(𝐗 ∈ [{1:.6e}, {2:.6e}], 𝐘 ∈ [{3:.6e}, {4:.6e}]; 𝚶 = {5}; Δxᵐⁱⁿ = {6:.6e}, Δxᵐᵃˣ = {7:.6e}; |Δyᵐⁱⁿ| = {8:.6e}, |Δyᵐᵃˣ| = {9:.6e})",
+            a, b, y_min, y_max, order, Δx_min, Δx_max, Δy_min, Δy_max)
     end
-
 end
 function Base.show(io::IO, ::MIME"text/plain", sfunction::SplineFunction)
     show(io, sfunction)
