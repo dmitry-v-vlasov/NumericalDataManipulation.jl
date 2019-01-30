@@ -8,6 +8,4 @@ include("interpolation/interpolation.jl")
 include("dataio/dataio.jl")
 include("data/data.jl")
 
-export load_numerical_table
-
 end # module
