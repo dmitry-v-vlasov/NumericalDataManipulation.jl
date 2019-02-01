@@ -3,6 +3,7 @@ using Crayons
 using Crayons.Box
 using DataStructures
 using NumericalDataManipulation.Data.Manipulation
+using NumericalDataManipulation.Data.Manager
 
 # ---- system ----
 Base.eval(:(have_color = true))
@@ -23,7 +24,8 @@ function main(args::Vector{String})
         if isa(error, ArgParseError) || isa(error, ArgumentError)
             @error "$error_type ⭃ $(error.msg)"
         else
-            @error "$error_type ⭃ $(error.msg)\n$(BOLD("𝐓race")):\n$(stacktrace(catch_backtrace()))"
+            #@error "$error_type ⭃ $(error)\n$(BOLD("𝐓race")):\n$(stacktrace(catch_backtrace()))"
+            rethrow(error)
         end
     end
 end
@@ -35,8 +37,8 @@ function work(arguments::Dict{String, Any})
     command = arguments["%COMMAND%"]
     options = arguments[command]
     if "merge-tables" == command
-        file_a = options["file-a"]
-        file_b = options["file-b"]
+        file_a = options["file-a"]; file_a_skip_title = options["file-a-skip-title"]
+        file_b = options["file-b"]; file_b_skip_title = options["file-b-skip-title"]
         master = options["master-file"]
         columns = options["columns"]
         intervals = options["intervals"]
@@ -47,6 +49,10 @@ function work(arguments::Dict{String, Any})
                  - Intervals: {$(join(map(ivl -> "[$(ivl[1]), $(ivl[2])]:$(ivl[3])", intervals), ", "))}."""
         master_interval, slave_intervals = normalize_intervals(intervals, master)
         @info "Result: master - $master_interval; slaves - $slave_intervals"
+        taks = MergeTwoTablesTask(file_a, file_b,
+            master, columns, master_interval, slave_intervals,
+            file_a_skip_title, file_b_skip_title)
+        Manager.merge_two_tables(taks)
     elseif "dummy-command" == command
         @info "Dummy command with options: $options"
     end
@@ -187,6 +193,16 @@ end
         help = "Data file B. Supported file extension: '.csv'"
         arg_type = String
         required = true
+    "--file-a-skip-title"
+        help = "Skip the first line (usually a title) in the file A."
+        arg_type = Bool
+        default = true
+        required = false
+    "--file-b-skip-title"
+        help = "Skip the first line (usually a title) in the file B."
+        arg_type = Bool
+        default = true
+        required = false
     "--master-file", "-m"
         help = "Choose file \"a\" or \"b\" as a \"master\" data file to merge all data to."
         arg_type = Symbol
