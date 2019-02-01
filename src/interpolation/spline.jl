@@ -2,6 +2,7 @@ import Dierckx
 import Calculus
 
 using Formatting
+using Crayons.Box
 
 struct SplineFunction <: Function
     spline::Dierckx.Spline1D
@@ -54,13 +55,15 @@ function Base.show(io::IO, sfunction::SplineFunction)
     spline = sfunction.spline
     order = spline.k
 
+    sb = IOBuffer()
     if compact
-        printfmt(io, "𝐒𝐩𝐥𝐢𝐧𝐞(𝐗 ∈ [{1:.6e}, {2:.6e}], 𝐘 ∈ [{3:.6e}, {4:.6e}]; 𝚶 = {5}; Δxᵐⁱⁿ = {6:.6e}, Δxᵐᵃˣ = {7:.6e})",
+        printfmt(sb, "𝐒𝐩𝐥𝐢𝐧𝐞(𝐗 ∈ [{1:.6e}, {2:.6e}], 𝐘 ∈ [{3:.6e}, {4:.6e}]; 𝚶 = {5}; Δxᵐⁱⁿ = {6:.6e}, Δxᵐᵃˣ = {7:.6e})",
             a, b, y_min, y_max, order, Δx_min, Δx_max)
     else
-        printfmt(io, "𝐒𝐩𝐥𝐢𝐧𝐞(𝐗 ∈ [{1:.6e}, {2:.6e}], 𝐘 ∈ [{3:.6e}, {4:.6e}]; 𝚶 = {5}; Δxᵐⁱⁿ = {6:.6e}, Δxᵐᵃˣ = {7:.6e}; |Δyᵐⁱⁿ| = {8:.6e}, |Δyᵐᵃˣ| = {9:.6e})",
+        printfmt(sb, "𝐒𝐩𝐥𝐢𝐧𝐞(𝐗 ∈ [{1:.6e}, {2:.6e}], 𝐘 ∈ [{3:.6e}, {4:.6e}]; 𝚶 = {5}; Δxᵐⁱⁿ = {6:.6e}, Δxᵐᵃˣ = {7:.6e}; |Δyᵐⁱⁿ| = {8:.6e}, |Δyᵐᵃˣ| = {9:.6e})",
             a, b, y_min, y_max, order, Δx_min, Δx_max, Δy_min, Δy_max)
     end
+    print(io, LIGHT_GRAY_FG(String(take!(sb))))
 end
 function Base.show(io::IO, ::MIME"text/plain", sfunction::SplineFunction)
     show(io, sfunction)

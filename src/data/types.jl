@@ -38,9 +38,9 @@ function Base.show(io::IO, table::NumericalTable)
     end
     functions_description = String(take!(sb))
     if compact
-        print(io, "NumericalTable(data = X($N_L), Y($N_L×$(N_C - 1));\n$functions_description")
+        print(io, "NumericalTable(data = X($N_L), Y($N_L×$(N_C - 1)):\n$functions_description")
     else
-        print(io, "NumericalTable(data = X($N_L), Y($N_L×$(N_C - 1));\n$functions_description")
+        print(io, "NumericalTable(data = X($N_L), Y($N_L×$(N_C - 1)):\n$functions_description")
     end
 
 end

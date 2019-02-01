@@ -1,5 +1,4 @@
 using ArgParse
-using Crayons
 using Crayons.Box
 using DataStructures
 using NumericalDataManipulation.Data.Manipulation
