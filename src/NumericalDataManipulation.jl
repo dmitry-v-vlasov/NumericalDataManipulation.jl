@@ -1,6 +1,7 @@
 module NumericalDataManipulation
 
 include("assertion/assertion.jl")
+include("strings/strings.jl")
 include("types/types.jl")
 include("common/common.jl")
 include("commonmath/commonmath.jl")

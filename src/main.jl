@@ -41,15 +41,18 @@ function work(arguments::Dict{String, Any})
         master = options["master-file"]
         columns = options["columns"]
         intervals = options["intervals"]
+        merge_function_strategy = options["function-merge-strategy"]
         @info """Data table selective merge:
-                 - File A: '$file_a';
-                 - File B: '$file_b';
-                 - Columns: $columns;
-                 - Intervals: {$(join(map(ivl -> "[$(ivl[1]), $(ivl[2])]:$(ivl[3])", intervals), ", "))}."""
+                 ✔ File A: '$file_a';
+                 ✔ File B: '$file_b';
+                 ✔ Columns: $columns;
+                 ✔ Intervals: {$(join(map(ivl -> "[$(ivl[1]), $(ivl[2])]:$(ivl[3])", intervals), ", "))};
+                 ✔ Function merge strategy: $merge_function_strategy."""
         master_interval, slave_intervals = normalize_intervals(intervals, master)
         @info "Result: master - $master_interval; slaves - $slave_intervals"
         taks = MergeTwoTablesTask(file_a, file_b,
             master, columns, master_interval, slave_intervals,
+            merge_function_strategy,
             file_a_skip_title, file_b_skip_title)
         Manager.merge_two_tables(taks)
     elseif "dummy-command" == command
@@ -166,70 +169,19 @@ function ifempty(object::Vector, default::Vector)
     return isempty(object) ? default : object
 end
 # --------------
-# --- LOGO ---
-const LOGO = strip(
-"""
-╔╦╗┌─┐┌┐┌┬┌─┐┬ ┬┬  ┌─┐┌┬┐┬┌─┐┌┐┌
-║║║├─┤││││├─┘│ ││  ├─┤ │ ││ ││││
-╩ ╩┴ ┴┘└┘┴┴  └─┘┴─┘┴ ┴ ┴ ┴└─┘┘└┘
-""")
-# --- CLI settings and main() call ---
-const ARG_SETTINGS = ArgParseSettings(;prog = "manipulation")
-@add_arg_table ARG_SETTINGS begin
-    "merge-tables"
-        help = "Merge two tables from two given files."
-        action = :command
-    "dummy-command"
-        help = "Dummy command"
-        action = :command
-end
-@add_arg_table ARG_SETTINGS["merge-tables"] begin
-    "--file-a", "-a"
-        help = "Data file A. Supported file extension: '.csv'"
-        arg_type = String
-        required = true
-    "--file-b", "-b"
-        help = "Data file B. Supported file extension: '.csv'"
-        arg_type = String
-        required = true
-    "--file-a-skip-title"
-        help = "Skip the first line (usually a title) in the file A."
-        arg_type = Bool
-        default = true
-        required = false
-    "--file-b-skip-title"
-        help = "Skip the first line (usually a title) in the file B."
-        arg_type = Bool
-        default = true
-        required = false
-    "--master-file", "-m"
-        help = "Choose file \"a\" or \"b\" as a \"master\" data file to merge all data to."
-        arg_type = Symbol
-        default = :a
-        required = false
-    "--columns", "-c"
-        help = """Select the column numbers to merge.
-                  A comma separated list of integers.
-                  The first column in files is always an argument grid (X).
-                  $(BOLD("Always")) start your column numbering (1, 2, ...)
-                  from the second column."""
-        arg_type = Vector{Int}
-        required = true
-    "--intervals", "-i"
-        help = """Comma separated list of intervals in square brackets in quotes.
-                  Example: \"[1.0, 2.0]:a, [29.6, 29.7]:b\".
-                  It it allowed to use symbols Inf and -Inf in the interval values.
-                  The intervals will be simplified automatically if possible.
-                  The strings :a and :b denote which file must be used to
-                  import data in the given interval."""
-        arg_type = Vector{Tuple{Float64, Float64, Symbol}}
-        required = true
-end
-@add_arg_table ARG_SETTINGS["dummy-command"] begin
-    "--dummy-option"
-        help = "Data file A"
-        arg_type = String
-        required = false
+
+# --------------
+function ArgParse.parse_item(::Type{MergeFunctionStrategyName}, some_strategy::AbstractString)
+    if !isempty(some_strategy) && some_strategy ∈ ["naive-join", "sigmoid-join"]
+        throw(ArgParseError("Wrong merge function strategy name '$some_strategy'; Supportred values are 'naive-join' and 'sigmoid-join'."))
+    end
+    if "naive-join" == some_strategy
+        return NAIVE_JOIN::MergeFunctionStrategyName
+    elseif "sigmoid-join" == some_strategy
+        return SIGMOID_JOIN::MergeFunctionStrategyName
+    else
+        throw(ArgParseError("Unexpected merge function strategy name '$some_strategy'"))
+    end
 end
 
 function ArgParse.parse_item(::Type{Symbol}, str::AbstractString)
@@ -280,6 +232,95 @@ function ArgParse.parse_item(::Type{Vector{Tuple{Float64, Float64, Symbol}}}, in
     return interval_list
 end
 
+# ---- CLI CONFIGURATION ----
+# --- LOGO ---
+const LOGO = strip(
+"""
+╔╦╗┌─┐┌┐┌┬┌─┐┬ ┬┬  ┌─┐┌┬┐┬┌─┐┌┐┌
+║║║├─┤││││├─┘│ ││  ├─┤ │ ││ ││││
+╩ ╩┴ ┴┘└┘┴┴  └─┘┴─┘┴ ┴ ┴ ┴└─┘┘└┘
+""")
+# --- CLI settings and main() call ---
+const ARG_SETTINGS = ArgParseSettings(;prog = "manipulation")
+@add_arg_table ARG_SETTINGS begin
+    "merge-tables"
+        help = "Merge two tables from two given files."
+        action = :command
+    "dummy-command"
+        help = "Dummy command"
+        action = :command
+end
+# ---- @add_arg_table ARG_SETTINGS["merge-tables"]
+@add_arg_table ARG_SETTINGS["merge-tables"] begin
+    "--file-a", "-a"
+        help = "Data file A. Supported file extension: '.csv'"
+        arg_type = String
+        required = true
+    "--file-b", "-b"
+        help = "Data file B. Supported file extension: '.csv'"
+        arg_type = String
+        required = true
+    "--file-a-skip-title"
+        help = "Skip the first line (usually a title) in the file A."
+        arg_type = Bool
+        default = true
+        required = false
+    "--file-b-skip-title"
+        help = "Skip the first line (usually a title) in the file B."
+        arg_type = Bool
+        default = true
+        required = false
+    "--master-file", "-m"
+        help = "Choose file \"a\" or \"b\" as a \"master\" data file to merge all data to."
+        arg_type = Symbol
+        default = :a
+        required = false
+    "--columns", "-c"
+        help = """Select the column numbers to merge.
+                  A comma separated list of integers.
+                  The first column in files is always an argument grid (X).
+                  $(BOLD("Always")) start your column numbering (1, 2, ...)
+                  from the second column.
+                  TODO: Support tables with different columns numbers."""
+        arg_type = Vector{Int}
+        required = true
+    "--intervals", "-i"
+        help = """Comma separated list of intervals in square brackets in quotes.
+                  Example: \"[1.0, 2.0]:a, [29.6, 29.7]:b\".
+                  It it allowed to use symbols Inf and -Inf in the interval values.
+                  The intervals will be simplified automatically if possible.
+                  The strings :a and :b denote which file must be used to
+                  import data in the given interval."""
+        arg_type = Vector{Tuple{Float64, Float64, Symbol}}
+        required = true
+    "--function-merge-strategy", "-f"
+        help = """The function merge strategy name denotes a way of joining
+                  the pieces of two similar functions from different tables.
+                  Supported strategies:
+                  $(UNDERLINE("✔ naive-join")):
+                  Simple interval join of the table functions;
+                  $(UNDERLINE("✔ sigmoid-join")):
+                  The intervals are joined
+                  with the sigmoid function with a rule
+                  $(ITALICS("'f(x) = (1 - σ(x; x₀, α))⋅f⁽¹⁾(x) + σ(x; x₀, α)⋅f⁽²⁾(x)'")),
+                  where σ is the sigmoid function,
+                  parameter x₀ defines a boundary point between
+                  interval 'a' and interval 'b',
+                  parameter α defines the sigmoid function area width,
+                  the functions f⁽¹⁾ and f⁽²⁾ originate from
+                  $(BOLD("file-a")) and $(BOLD("file-b"))."""
+        arg_type = MergeFunctionStrategyName
+        default = SIGMOID_JOIN::MergeFunctionStrategyName
+        required = false
+end
+@add_arg_table ARG_SETTINGS["dummy-command"] begin
+    "--dummy-option"
+        help = "Data file A"
+        arg_type = String
+        required = false
+end
+
+# ------------------------------------
 if !isinteractive()
     println(RED_FG(LOGO))
     main(ARGS)

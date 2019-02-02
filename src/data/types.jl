@@ -1,9 +1,12 @@
 using DataFrames
+using Crayons.Box
 using NumericalDataManipulation.Types
 using NumericalDataManipulation.Interpolation
+using NumericalDataManipulation.Strings
 
 abstract type Table end
 struct NumericalTable <: Table
+    argument::Vector{Float64}
     data::DataFrame
     functions::Vector{SplineFunction}
     function NumericalTable(data::DataFrame)
@@ -20,27 +23,28 @@ struct NumericalTable <: Table
             spline_function = SplineFunction(X, Y)
             push!(functions, spline_function)
         end
-        numerical_table = new(data, functions)
+        numerical_table = new(X, data, functions)
         return numerical_table
     end
 end
 function Base.show(io::IO, table::NumericalTable)
     compact = get(io, :compact, false)
 
+    X = table.argument
     data = table.data
     functions = table.functions
     N_L = size(data, 1)
     N_C = size(data, 2)
 
     sb = IOBuffer()
-    for func ∈ functions
-        println(sb, "    ⚫ $func")
+    for (i, func) ∈ enumerate(functions)
+        println(sb, "    ⚫ $(LIGHT_GRAY_FG(supindex(i)))$func")
     end
     functions_description = String(take!(sb))
     if compact
-        print(io, "NumericalTable(data = X($N_L), Y($N_L×$(N_C - 1)):\n$functions_description")
+        print(io, LIGHT_GRAY_FG("NumericalTable(data = X[$(X[1]), $(X[end])]($N_L), Y($N_L×$(N_C - 1)):\n$functions_description"))
     else
-        print(io, "NumericalTable(data = X($N_L), Y($N_L×$(N_C - 1)):\n$functions_description")
+        print(io, LIGHT_GRAY_FG("NumericalTable(data = X[$(X[1]), $(X[end])]($N_L), Y($N_L×$(N_C - 1)):\n$functions_description"))
     end
 
 end
