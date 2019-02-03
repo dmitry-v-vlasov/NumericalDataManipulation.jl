@@ -34,6 +34,14 @@ function merge_two_tables(task::MergeTwoTablesTask)
     @info RED_FG(".......................")
 
     # ----
+    master_table = task.master == :a ? table_a : table_b
+    slave_table =  task.master == :a ? table_b : table_a
+    target_table = merge_table_slave_to_master_sigmoid(
+                        slave_table, master_table,
+                        task.columns,
+                        map(ivl -> (ivl[1], ivl[2]), task.slave_intervals),
+                        (task.master_interval[1], task.master_interval[2]),
+                        master_grid, slave_grid, merged_grid)
     # ----
 
     @info MAGENTA_FG(UNDERLINE(BOLD("[Merge Two Tables Task] - Done")))

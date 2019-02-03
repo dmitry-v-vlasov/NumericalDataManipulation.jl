@@ -91,9 +91,14 @@ function sum_until(upper_bound_reached::Function, V::Vector{Float64})
     return (Σ, iᵉ)
 end
 
+flatten(arr::Array) = mapreduce(x -> isa(x, Array) ? flatten(x) : x, append!, arr,init=[])
+flatten(arr::Tuple) = mapreduce(x -> isa(x, Tuple) ? flatten(x) : x, append!, arr,init=[])
+flatten(arr::Base.KeySet) = mapreduce(x -> isa(x, Base.KeySet) ? flatten(x) : x, append!, arr,init=[])
+
 export relative_Δ, relative, issmall
 export Δknot_values
 export nonzero, finity, relfinity
 export sum_until
+export flatten
 
 end  # module Common

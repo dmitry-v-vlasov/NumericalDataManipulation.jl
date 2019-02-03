@@ -23,7 +23,11 @@ function main(args::Vector{String})
     catch error
         error_type = BOLD(UNDERLINE(string(typeof(error))))
         if isa(error, ArgParseError) || isa(error, ArgumentError)
+            if isa(error, ArgParseError)
             @error "$error_type ⭃ $(error.msg)"
+            elseif isa(error, ArgumentError)
+                @error "$error_type ⭃ $(error.msg):\n$(sprint(io->Base.show_backtrace(io, catch_backtrace())))"
+            end
         else
             #@error "$error_type ⭃ $(error)\n$(BOLD("𝐓race")):\n$(stacktrace(catch_backtrace()))"
             rethrow(error)

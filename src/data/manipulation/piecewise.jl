@@ -1,5 +1,7 @@
+using Crayons.Box
 using DataStructures
 using NumericalDataManipulation.CommonMath
+using NumericalDataManipulation.Common
 
 function piecewise_function(
   definitions::OrderedDict{Tuple{Float64, Float64}, Tuple{Function, Bool}}; ϵᵇᵖ::Float64=1e-2)
@@ -68,7 +70,7 @@ function make_piecewise_sigmoid_function(
     keep_leftₖ = defₖ_left.second[2]
     Δxₖ_left = xₖ_b_left - xₖ_a_left
     if keep_leftₖ
-      @warn "Interval [$xₖ_a_left, $xₖ_b_left] will be kept (untouched function)."
+      @info LIGHT_RED_FG("Interval [$xₖ_a_left, $xₖ_b_left] will be kept (untouched function).")
     end
 
     defₖ_right = definition_list[k + 1]
@@ -78,7 +80,7 @@ function make_piecewise_sigmoid_function(
     keep_rightₖ = defₖ_right.second[2]
     Δxₖ_right = xₖ_b_right - xₖ_a_right
     if keep_rightₖ
-      @warn "Interval [$xₖ_a_right, $xₖ_b_right] will be kept (untouched function)."
+      @info LIGHT_RED_FG("Interval [$xₖ_a_right, $xₖ_b_right] will be kept (untouched function).")
     end
 
     parametersₖ = breakpoint_parameters[k]
