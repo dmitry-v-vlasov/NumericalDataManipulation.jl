@@ -1,6 +1,8 @@
 using ArgParse
 using Crayons.Box
 using DataStructures
+import Statistics, StatsBase
+using NumericalDataManipulation.CommonMath
 using NumericalDataManipulation.Data.Manipulation
 using NumericalDataManipulation.Data.Manager
 
@@ -42,17 +44,19 @@ function work(arguments::Dict{String, Any})
         columns = options["columns"]
         intervals = options["intervals"]
         merge_function_strategy = options["function-merge-strategy"]
+        grid_merge_parameters = options["grid-merge-parameters"]
         @info """Data table selective merge:
                  ✔ File A: '$file_a';
                  ✔ File B: '$file_b';
                  ✔ Columns: $columns;
                  ✔ Intervals: {$(join(map(ivl -> "[$(ivl[1]), $(ivl[2])]:$(ivl[3])", intervals), ", "))};
-                 ✔ Function merge strategy: $merge_function_strategy."""
+                 ✔ Function merge strategy: $merge_function_strategy;
+                 ✔ Grid merge parameters: $grid_merge_parameters"""
         master_interval, slave_intervals = normalize_intervals(intervals, master)
         @info "Result: master - $master_interval; slaves - $slave_intervals"
         taks = MergeTwoTablesTask(file_a, file_b,
             master, columns, master_interval, slave_intervals,
-            merge_function_strategy,
+            merge_function_strategy, grid_merge_parameters,
             file_a_skip_title, file_b_skip_title)
         Manager.merge_two_tables(taks)
     elseif "dummy-command" == command
@@ -184,6 +188,31 @@ function ArgParse.parse_item(::Type{MergeFunctionStrategyName}, some_strategy::A
     end
 end
 
+const REGEX_GRID_PARS = r"^\d+\s*,\s*\d+(\.\d+)?\s*,\s*(mean_log10_golden_lower|mean_log10|geomean|harmmean|mean)$"
+const REGEX_SPLIT_GRID_PARS = r"\s*,\s*"
+function ArgParse.parse_item(::Type{GridMergeParameters}, parameters::AbstractString)
+    if !occursin(REGEX_GRID_PARS, parameters)
+        throw(ArgParseError("Wrong grid merge parameter string: $parameters"))
+    end
+    tail = parse(Int, match(r"\d+(?=\s*,\s*\d+(\.\d+)?)", parameters).match)
+    ϵ = parse(Float64, match(r"\d+(\.\d+)?(?=\s*,\s*(mean_log10_golden_lower|mean_log10|geomean|harmmean|mean))", parameters).match)
+
+    mean_function_string = match(r"mean_log10_golden_lower|mean_log10|mean", parameters).match
+    mean_function = if "mean_log10" == mean_function_string
+        mean_log10
+    elseif "mean_log10_golden_lower" == mean_function_string
+        mean_log10_golden_lower
+    elseif "geomean" == mean_function_string
+        StatsBase.geomean
+    elseif "harmmean" == mean_function_string
+        StatsBase.harmmean
+    elseif "mean" == mean_function_string
+        Statistics.mean
+    end
+
+    return GridMergeParameters(tail, ϵ, mean_function)
+end
+
 function ArgParse.parse_item(::Type{Symbol}, str::AbstractString)
     master_file = Symbol(str)
     if master_file ∉ [:a, :b]
@@ -204,6 +233,14 @@ function ArgParse.parse_item(::Type{Vector{Int}}, columns_string::AbstractString
         throw(ArgParseError("The column list $column_numbers contains duplicates."))
     end
     return sort(column_numbers)
+end
+
+function ArgParse.parse_item(::Type{Symbol}, str::AbstractString)
+    master_file = Symbol(str)
+    if master_file ∉ [:a, :b]
+        throw(ArgParseError("Choose the value \"a\" or \"b\" to specify the master file. Given value: $master_file"))
+    end
+    return master_file
 end
 
 const REGEX_INTERVALS = r"^(\[([0-9]+(.[0-9]+)?|Inf|-Inf)\s*,\s*([0-9]+(.[0-9]+)?|Inf|-Inf)\](:a|:b)\s*,\s*)*\[([0-9]+(.[0-9]+)?|Inf|-Inf)\s*,\s*([0-9]+(.[0-9]+)?|Inf|-Inf)\](:a|:b)$"
@@ -312,7 +349,29 @@ end
         arg_type = MergeFunctionStrategyName
         default = SIGMOID_JOIN::MergeFunctionStrategyName
         required = false
+    "--grid-merge-parameters", "-g"
+        help = """Grid merging parameters (comma separated values):
+                  1. Number of knots to merge the small intervals;
+                  Default value - 5;
+                  2. Relative smallness ϵʳᵉˡ of a grid interval in comparisson
+                  to a mean grid value (usually logarithmic mean);
+                  Default value - 0.4;
+                  3. Function name to calculate grid step mean value;
+                  Supported values:
+                  mean_log10,
+                  mean_log10_golden_lower,
+                  geomean,
+                  harmmean,
+                  mean;
+                  Default value - mean_log10
+                  (mean_log10(Δx₁, Δx₂) = ((υ₁ + υ₂) / 2)^((o₁ + o₂) / 2),
+                  where Δx = υ × 10^o)
+                  """
+        arg_type = GridMergeParameters
+        default = GridMergeParameters(5, 0.4, mean_log10)
+        required = false
 end
+
 @add_arg_table ARG_SETTINGS["dummy-command"] begin
     "--dummy-option"
         help = "Data file A"

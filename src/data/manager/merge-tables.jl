@@ -16,10 +16,25 @@ function merge_two_tables(task::MergeTwoTablesTask)
 
     @info RED_FG(".......................")
     grid_a = DataGrid(table_a.argument)
-    @info "$(MAGENTA_FG(BOLD("Argument grid of table A:")))\n$(LIGHT_GRAY_FG("$grid_a"))"
+    @info "$(MAGENTA_FG(BOLD("Argument grid of table A:")))\n$grid_a"
     grid_b = DataGrid(table_b.argument)
-    @info "$(MAGENTA_FG(BOLD("Argument grid of table B:")))\n$(LIGHT_GRAY_FG("$grid_b"))"
+    @info "$(MAGENTA_FG(BOLD("Argument grid of table B:")))\n$grid_b"
+
+    @info RED_FG("⋯ ⋯ ⋯ ⋯ ⋯")
+    tail = task.grid_merge_parameters.tail_knots
+    ϵʳᵉˡ = task.grid_merge_parameters.ϵʳᵉˡ
+    meanΔ = task.grid_merge_parameters.meanΔ
+    merged_grid_result = merge_grids(grid_a, grid_b; ntail = tail, ϵʳᵉˡ = ϵʳᵉˡ, meanΔ = meanΔ)
+    @info "$(MAGENTA_FG(BOLD("Merged grid A + B:")))\n$merged_grid_result"
+    @info RED_FG("⋯ ⋯ ⋯ ⋯ ⋯")
+    @info "$(LIGHT_MAGENTA_FG(BOLD("The master grid is: ")))$(LIGHT_GRAY_FG(task.master == :a ? "A" : "B"))"
+    master_grid = task.master == :a ? grid_a : grid_b
+    slave_grid =  task.master == :a ? grid_b : grid_a
+    merged_grid = merged_grid_result
     @info RED_FG(".......................")
+
+    # ----
+    # ----
 
     @info MAGENTA_FG(UNDERLINE(BOLD("[Merge Two Tables Task] - Done")))
     @info RED_FG("=======================")

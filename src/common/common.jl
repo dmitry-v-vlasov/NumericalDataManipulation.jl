@@ -1,44 +1,7 @@
 module Common
 
 using Statistics
-
-const ∞ = Inf
-const ∞⁻ = -Inf
-const 𝐆 = MathConstants.golden
-const 𝐆⁻¹ = 𝐆 - 1
-const 𝐆1⁻¹ = 2 - 𝐆
-const c½ = 0.5
-
-function scientific_notation_parts(a::Float64)
-    o = floor(log10(abs(a)))
-    υ = a / 10^o
-    return (υ, o)
-end
-
-function mean_log10(a::Float64, b::Float64)
-    υᵃ, oᵃ = scientific_notation_parts(a)
-    υᵇ, oᵇ = scientific_notation_parts(b)
-    return 0.5 * (υᵃ + υᵇ) * 10^(0.5 * (oᵃ + oᵇ))
-end
-function mean_log10(V::Vector{Float64})
-    @assert !isempty(V)
-    vᵐⁱⁿ = minimum(V); vᵐᵃˣ = maximum(V)
-    @assert vᵐⁱⁿ ≠ 0
-    return mean_log10(vᵐⁱⁿ, vᵐᵃˣ)
-end
-
-function mean_log10_golden_lower(v¹::Float64, v²::Float64)
-    a = min(v¹, v²); b = max(v¹, v²)
-    υᵃ, oᵃ = scientific_notation_parts(a)
-    υᵇ, oᵇ = scientific_notation_parts(b)
-    return (𝐆⁻¹*υᵃ + 𝐆1⁻¹*υᵇ) * 10^(𝐆⁻¹*oᵃ + 𝐆1⁻¹*oᵇ)
-end
-function mean_log10_golden_lower(V::Vector{Float64})
-    @assert !isempty(V)
-    vᵐⁱⁿ = minimum(V); vᵐᵃˣ = maximum(V)
-    @assert vᵐⁱⁿ ≠ 0
-    return mean_log10_golden_lower(vᵐⁱⁿ, vᵐᵃˣ)
-end
+using NumericalDataManipulation.CommonMath
 
 function relative_Δ(a¹::Float64, a²::Float64, b¹::Float64, b²::Float64)
     return (a² - a¹) / (b² - b¹)
@@ -128,10 +91,6 @@ function sum_until(upper_bound_reached::Function, V::Vector{Float64})
     return (Σ, iᵉ)
 end
 
-export ∞, ∞⁻
-export 𝐆, 𝐆⁻¹, 𝐆1⁻¹
-export scientific_notation_parts
-export mean_log10, mean_log10_golden_lower
 export relative_Δ, relative, issmall
 export Δknot_values
 export nonzero, finity, relfinity

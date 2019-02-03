@@ -1,5 +1,6 @@
 using Statistics
 using NumericalDataManipulation.Common
+using NumericalDataManipulation.CommonMath
 
 function merge_grids(G¹::DataGrid, G²::DataGrid;
     ntail::Int=5, ϵʳᵉˡ::Float64=0.4, meanΔ::Function=mean_log10)

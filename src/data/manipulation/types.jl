@@ -1,6 +1,8 @@
 using Statistics
 using Formatting
+using Crayons.Box
 using NumericalDataManipulation.Common
+using NumericalDataManipulation.CommonMath
 
 struct DataGrid
     knots::Vector{Float64}
@@ -34,10 +36,10 @@ function Base.show(io::IO, grid::DataGrid)
     Δknots = grid.Δknots
 
     if compact
-        printfmt(io, "DataGrid([{1:.3e}, {2:.3e}]($N), Δlog10 = {3:.6e}, Δmin = {4:.6e}, Δmax = {5:.3e}, Δmean = {6:.5e}, Δ𝐆 = {7:.6e})",
+        printfmt(io, "$(LIGHT_GRAY_FG("DataGrid([{1:.3e}, {2:.3e}]($N), Δlog10 = {3:.6e}, Δmin = {4:.6e}, Δmax = {5:.3e}, Δmean = {6:.5e}, Δ𝐆 = {7:.6e})"))",
             a, b, Δlog10, Δmin, Δmax, Δmean, Δ𝐆)
     else
-        printfmt(io, "DataGrid([{1:.3e}, {2:.3e}]($N), Δlog10 = {3:.6e}, Δmin = {4:.6e}, Δmax = {5:.3e}, Δmean = {6:.5e}, Δ𝐆 = {7:.6e})",
+        printfmt(io, "$(LIGHT_GRAY_FG("DataGrid([{1:.3e}, {2:.3e}]($N), Δlog10 = {3:.6e}, Δmin = {4:.6e}, Δmax = {5:.3e}, Δmean = {6:.5e}, Δ𝐆 = {7:.6e})"))",
             a, b, Δlog10, Δmin, Δmax, Δmean, Δ𝐆)
     end
 
