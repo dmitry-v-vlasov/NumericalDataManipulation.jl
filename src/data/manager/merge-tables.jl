@@ -29,13 +29,13 @@ function merge_two_tables(task::MergeTwoTablesTask)
     @info RED_FG("⋯ ⋯ ⋯ ⋯ ⋯")
     @info "$(LIGHT_MAGENTA_FG(BOLD("The master grid is: ")))$(LIGHT_GRAY_FG(task.master == :a ? "A" : "B"))"
     master_grid = task.master == :a ? grid_a : grid_b
-    slave_grid =  task.master == :a ? grid_b : grid_a
+    slave_grid = task.master == :a ? grid_b : grid_a
     merged_grid = merged_grid_result
     @info RED_FG(".......................")
 
     # ----
     master_table = task.master == :a ? table_a : table_b
-    slave_table =  task.master == :a ? table_b : table_a
+    slave_table = task.master == :a ? table_b : table_a
     target_table = merge_table_slave_to_master_sigmoid(
                         slave_table, master_table,
                         task.columns,
@@ -43,6 +43,10 @@ function merge_two_tables(task::MergeTwoTablesTask)
                         (task.master_interval[1], task.master_interval[2]),
                         master_grid, slave_grid, merged_grid)
     # ----
+
+    @info MAGENTA_FG("Saving the the result to: '$(task.file_out)'...")
+    save_numerical_table(task.file_out, target_table)
+    @info MAGENTA_FG("... Done")
 
     @info MAGENTA_FG(UNDERLINE(BOLD("[Merge Two Tables Task] - Done")))
     @info RED_FG("=======================")

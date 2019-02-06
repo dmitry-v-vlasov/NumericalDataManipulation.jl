@@ -44,6 +44,7 @@ function work(arguments::Dict{String, Any})
     if "merge-tables" == command
         file_a = options["file-a"]; file_a_skip_title = options["file-a-skip-title"]
         file_b = options["file-b"]; file_b_skip_title = options["file-b-skip-title"]
+        file_out = options["file-out"]
         master = options["master-file"]
         columns = options["columns"]
         intervals = options["intervals"]
@@ -52,14 +53,16 @@ function work(arguments::Dict{String, Any})
         @info """Data table selective merge:
                  ✔ File A: '$file_a';
                  ✔ File B: '$file_b';
+                 ✔ Output: '$file_out';
                  ✔ Columns: $columns;
                  ✔ Intervals: {$(join(map(ivl -> "[$(ivl[1]), $(ivl[2])]:$(ivl[3])", intervals), ", "))};
                  ✔ Function merge strategy: $merge_function_strategy;
                  ✔ Grid merge parameters: $grid_merge_parameters"""
         master_interval, slave_intervals = normalize_intervals(intervals, master)
         @info "Result: master - $master_interval; slaves - $slave_intervals"
-        taks = MergeTwoTablesTask(file_a, file_b,
-            master, columns, master_interval, slave_intervals,
+        taks = MergeTwoTablesTask(file_a, file_b, master,
+            file_out,
+            columns, master_interval, slave_intervals,
             merge_function_strategy, grid_merge_parameters,
             file_a_skip_title, file_b_skip_title)
         Manager.merge_two_tables(taks)
@@ -315,6 +318,11 @@ end
         help = "Choose file \"a\" or \"b\" as a \"master\" data file to merge all data to."
         arg_type = Symbol
         default = :a
+        required = false
+    "--file-out", "-o"
+        help = "The output path to wite the merged table."
+        arg_type = String
+        default = "output.csv"
         required = false
     "--columns", "-c"
         help = """Select the column numbers to merge.

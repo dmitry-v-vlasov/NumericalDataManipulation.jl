@@ -12,4 +12,8 @@ function load_numerical_table(resource::FileResource; has_title::Bool = false)
 end
 
 function save_numerical_table(resource::FileResource, table::NumericalTable)
+    if exists(resource)
+        @warn "The resource $resource exist already; It will be overwritten."
+    end
+    save_datatable(table.data, resource.file_path)
 end
