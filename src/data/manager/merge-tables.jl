@@ -2,6 +2,7 @@ using NumericalDataManipulation.Data.Storage
 using NumericalDataManipulation.Data.Manipulation
 
 using Crayons.Box
+using Humanize
 
 function merge_two_tables(task::MergeTwoTablesTask)
     @info RED_FG("=======================")
@@ -34,6 +35,8 @@ function merge_two_tables(task::MergeTwoTablesTask)
     @info RED_FG(".......................")
 
     # ----
+    master_file = task.master == :a ? task.file_a : task.file_b
+    slave_file = task.master == :a ? task.file_b : task.file_a
     master_table = task.master == :a ? table_a : table_b
     slave_table = task.master == :a ? table_b : table_a
     target_table = merge_table_slave_to_master_sigmoid(
@@ -49,5 +52,9 @@ function merge_two_tables(task::MergeTwoTablesTask)
     @info MAGENTA_FG("... Done")
 
     @info MAGENTA_FG(UNDERLINE(BOLD("[Merge Two Tables Task] - Done")))
+    @info """$(YELLOW_FG(BOLD("File sizes:")))
+             $("        ")$(YELLOW_FG(BOLD("✔ Master file:"))) $(LIGHT_BLUE_FG(fsize(master_file)));
+             $("        ")$(YELLOW_FG(BOLD("✔ Slave file:"))) $(LIGHT_BLUE_FG(fsize(slave_file)));
+             $("        ")$(YELLOW_FG(BOLD("✔ Out file:"))) $(LIGHT_RED_FG(fsize(task.file_out)))."""
     @info RED_FG("=======================")
 end

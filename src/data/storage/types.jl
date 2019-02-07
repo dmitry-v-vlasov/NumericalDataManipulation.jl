@@ -1,5 +1,6 @@
 using URIParser
 using DataFrames
+using Humanize
 using NumericalDataManipulation.Data
 
 abstract type Resource end
@@ -54,4 +55,18 @@ end
 
 function exists(resource::FileResource)
     return isfile(resource.file_path)
+end
+
+function stats(resource::FileResource)
+    if exists(resource)
+        return stat(resource.file_path)
+    else
+        return nothing
+    end
+end
+
+function fsize(resource::FileResource)
+    st = stats(resource)
+    return st == nothing ?
+        "nonexistent" : Humanize.datasize(st.size; style=:dec, format="%.3f")
 end
