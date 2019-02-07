@@ -2,6 +2,7 @@ using NumericalDataManipulation.Data.Storage
 using NumericalDataManipulation.Data.Manipulation
 
 using Crayons.Box
+using Printf
 
 function merge_two_tables(task::MergeTwoTablesTask)
     @info RED_FG("=======================")
@@ -52,8 +53,10 @@ function merge_two_tables(task::MergeTwoTablesTask)
 
     @info MAGENTA_FG(UNDERLINE(BOLD("[Merge Two Tables Task] - Done")))
     @info """$(YELLOW_FG(BOLD("File sizes:")))
-             $("        ")$(YELLOW_FG(BOLD("✔ Master file:"))) $(LIGHT_BLUE_FG(fsize(master_file)));
-             $("        ")$(YELLOW_FG(BOLD("✔ Slave file:"))) $(LIGHT_BLUE_FG(fsize(slave_file)));
-             $("        ")$(YELLOW_FG(BOLD("✔ Out file:"))) $(LIGHT_RED_FG(fsize(task.file_out)))."""
+             $("        ")$(YELLOW_FG(BOLD("✔ Master file ($(LIGHT_GRAY_FG(fbasename(master_file)))):"))) $(LIGHT_BLUE_FG(fsize(master_file))), $(LIGHT_GRAY_FG("(Δxᵐⁱⁿ=$(@sprintf("%.5e", master_grid.Δmin)), Δxᵐᵃˣ=$(@sprintf("%.5e", master_grid.Δmax)), Nᵏⁿᵒᵗˢ=$(length(master_grid)))"));
+             $("        ")$(YELLOW_FG(BOLD("✔ Slave file ($(LIGHT_GRAY_FG(fbasename(slave_file)))):"))) $(LIGHT_BLUE_FG(fsize(slave_file))), $(LIGHT_GRAY_FG("(Δxᵐⁱⁿ=$(@sprintf("%.5e", slave_grid.Δmin)), Δxᵐᵃˣ=$(@sprintf("%.5e", slave_grid.Δmax)), Nᵏⁿᵒᵗˢ=$(length(slave_grid)))"));
+             $("        ")$(YELLOW_FG(BOLD("✔ Out file ($(LIGHT_GRAY_FG(fbasename(task.file_out)))):"))) $(LIGHT_RED_FG(fsize(task.file_out))), $(LIGHT_GRAY_FG("(Δxᵐⁱⁿ=$(@sprintf("%.5e", merged_grid.Δmin)), Δxᵐᵃˣ=$(@sprintf("%.5e", merged_grid.Δmax)), Nᵏⁿᵒᵗˢ=$(length(merged_grid)))")).
+             $("        ")———————————
+             $("        ")$(YELLOW_FG(BOLD("Δ of out file and master:"))) $(LIGHT_RED_FG(fsizediff(task.file_out, master_file)))"""
     @info RED_FG("=======================")
 end

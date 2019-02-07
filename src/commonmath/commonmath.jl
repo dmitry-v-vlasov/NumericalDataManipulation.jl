@@ -8,8 +8,9 @@ const 𝐆1⁻¹ = 2 - 𝐆
 const c½ = 0.5
 
 function mean_geometric(a::Float64, b::Float64; use_abs::Bool = false)
-    prod = a * b
-    return (use_abs ? sign(prod) : 1) * √(use_abs ? abs(prod) : prod)
+    prd = a * b
+    sgn = sign(a) == sign(b) ? sign(a) : sign(prd)
+    return (use_abs ? sgn : 1) * √(use_abs ? abs(prd) : prd)
 end
 function mean_geometric(V::Vector{Float64}; use_abs::Bool = false)
     @assert !isempty(V)

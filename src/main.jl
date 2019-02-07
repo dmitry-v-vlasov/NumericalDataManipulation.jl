@@ -59,7 +59,7 @@ function work(arguments::Dict{String, Any})
                  ✔ Function merge strategy: $merge_function_strategy;
                  ✔ Grid merge parameters: $grid_merge_parameters"""
         master_interval, slave_intervals = normalize_intervals(intervals, master)
-        @info "Result: master - $master_interval; slaves - $slave_intervals"
+        @info "Normalized intervals: master - $master_interval; slaves - $slave_intervals"
         taks = MergeTwoTablesTask(file_a, file_b, master,
             file_out,
             columns, master_interval, slave_intervals,
@@ -204,7 +204,7 @@ function ArgParse.parse_item(::Type{GridMergeParameters}, parameters::AbstractSt
     tail = parse(Int, match(r"\d+(?=\s*,\s*\d+(\.\d+)?)", parameters).match)
     ϵ = parse(Float64, match(r"\d+(\.\d+)?(?=\s*,\s*(mean_log10_golden_lower|mean_log10|geomean|harmmean|mean))", parameters).match)
 
-    mean_function_string = match(r"mean_log10_golden_lower|mean_log10|mean", parameters).match
+    mean_function_string = match(r"mean_log10_golden_lower|mean_log10|geomean|harmmean|mean", parameters).match
     mean_function = if "mean_log10" == mean_function_string
         mean_log10
     elseif "mean_log10_golden_lower" == mean_function_string

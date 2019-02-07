@@ -70,3 +70,23 @@ function fsize(resource::FileResource)
     return st == nothing ?
         "nonexistent" : Humanize.datasize(st.size; style=:dec, format="%.3f")
 end
+
+function fsizediff(resource1::FileResource, resource2::FileResource)
+    st1 = stats(resource1)
+    st2 = stats(resource2)
+    if st1 ≠ nothing && st2 ≠ nothing
+        size1 = st1.size; size2 = st2.size
+        Δsize = size1 - size2
+        return "$(sign(Δsize) > 0 ? '➕' : '➖')$(Humanize.datasize(abs(Δsize); style=:gnu, format="%.3f"))"
+    else
+        return "nonexistent"
+    end
+end
+
+function fbasename(resource::Resource)
+    if exists(resource)
+        return basename(resource.file_path)
+    else
+        return nothing
+    end
+end

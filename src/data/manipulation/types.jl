@@ -47,6 +47,9 @@ end
 function Base.show(io::IO, ::MIME"text/plain", grid::DataGrid)
     show(io, grid)
 end
+function Base.length(grid::DataGrid)
+    return length(grid.knots)
+end
 
 function give_Δknots(knots::Vector{Float64})
     @assert(length(knots) ≥ 3, "Grid must contain at least 3 knots.")
