@@ -2,7 +2,6 @@ using NumericalDataManipulation.Data.Storage
 using NumericalDataManipulation.Data.Manipulation
 
 using Crayons.Box
-using Humanize
 
 function merge_two_tables(task::MergeTwoTablesTask)
     @info RED_FG("=======================")
