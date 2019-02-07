@@ -1,6 +1,7 @@
 # NumericalDataManipulation
 
-![](docs/Selection_139.png?raw=true)
+![](docs/screenshot-01.png?raw=true)
+![](docs/screenshot-02.png?raw=true)
 
 ![Lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)<!--
 ![Lifecycle](https://img.shields.io/badge/lifecycle-maturing-blue.svg)
