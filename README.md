@@ -3,6 +3,9 @@
 ![](docs/screenshot-01.png?raw=true)
 ![](docs/screenshot-02.png?raw=true)
 
+## License
+The NumericalDataManipulation.jl package is licensed under the GNU GPLv3 License
+
 ![Lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)<!--
 ![Lifecycle](https://img.shields.io/badge/lifecycle-maturing-blue.svg)
 ![Lifecycle](https://img.shields.io/badge/lifecycle-stable-green.svg)
